@@ -14,6 +14,9 @@ PROJECT_ROOT = os.path.join(BASE_DIR, 'george-xmind')
 
 
 class Gxmind(object):
+    """
+    用来处理节点的操作
+    """
     def __init__(self, path):
         self.path = path
         self.wb = xmind.load(self.path)
@@ -55,11 +58,11 @@ gxmind = Gxmind(os.path.join(PROJECT_ROOT, DEFAULT_PROJECT_NAME + '.xmind'))
 def find_files_recursively(root_path, filename='', prefix='', suffix='.py'):
     """
     递归的查找文件
-    :param root_path:
-    :param filename:
-    :param prefix:
-    :param suffix:
-    :return:
+    :param root_path: 文件路径
+    :param filename: 需要搜索的文件名
+    :param prefix: 文件名前缀
+    :param suffix: 文件名后缀
+    :return: 搜索出的文件
     """
     matches = {}
     for root, dir_names, file_names in os.walk(root_path):
@@ -71,10 +74,20 @@ def find_files_recursively(root_path, filename='', prefix='', suffix='.py'):
 
 
 def match_regex(string):
+    """
+    正则匹配
+    :param string:
+    :return: 匹配结果
+    """
     return re.findall(r"^class (\w+)\((.+)\):", string, flags=re.MULTILINE)
 
 
 def get_one_file_models(file_path):
+    """
+    获取一个model文件中的model
+    :param file_path:
+    :return: model数组
+    """
     result = []
     with open(file_path, 'r+') as fp:
         match = match_regex(fp.read())
@@ -85,6 +98,11 @@ def get_one_file_models(file_path):
 
 
 def get_models(matches):
+    """
+    获取所有的model
+    :param matches:
+    :return: model数组
+    """
     all_models = defaultdict(list)
 
     for m_module, m_path in matches.items():
@@ -97,7 +115,12 @@ def get_models(matches):
     return all_models
 
 
-def handle_model_relations(models):
+def handle_models(models):
+    """
+    绘制model的思维导图
+    :param models: model数组
+    :return:
+    """
     model_root = gxmind.create_sub(title='models')
     gxmind.add_sub(child=model_root)
 
@@ -127,7 +150,7 @@ def run():
 
     matches = find_files_recursively(DEFAULT_DJANGO_PROJECT_PATH, filename='models')
     models = get_models(matches)
-    handle_model_relations(models)
+    handle_models(models)
 
 
 if __name__ == '__main__':
